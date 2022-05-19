@@ -220,6 +220,9 @@ public class MedTaggerBackboneTransform extends Transform {
                 System.out.println("Skipping document " + id + " due to NLP run taking longer than 30 seconds");
                 future.cancel(true);
                 nlpExecutor.shutdownNow();
+                JsonNode json = toEmptyJSON();
+                Row out = Row.withSchema(schema).addValues(input.getValues()).addValue(json.toString()).build();
+                output.output(out);
                 return;
             } catch (Throwable t) {
                 System.out.println("Skipping document " + id + " due to error. Note that this may be expected if NLP run " +
@@ -227,6 +230,9 @@ public class MedTaggerBackboneTransform extends Transform {
                 t.printStackTrace();
                 future.cancel(true);
                 nlpExecutor.shutdownNow();
+                JsonNode json = toEmptyJSON();
+                Row out = Row.withSchema(schema).addValues(input.getValues()).addValue(json.toString()).build();
+                output.output(out);
                 return;
             }
             try {
@@ -241,6 +247,11 @@ public class MedTaggerBackboneTransform extends Transform {
                     output.output(out);
                 }
                 System.out.println("Found " + runs + " NLP Artifacts in Document " + id);
+                if (runs == 0) {
+                    JsonNode json = toEmptyJSON();
+                    Row out = Row.withSchema(schema).addValues(input.getValues()).addValue(json.toString()).build();
+                    output.output(out);
+                }
             } catch (CASException e) {
                 throw new RuntimeException(e);
             }
@@ -280,6 +291,20 @@ public class MedTaggerBackboneTransform extends Transform {
             ret.put("status", cm.getStatus());
             ret.put("offset", cm.getBegin());
             ret.put("semgroups", cm.getSemGroup());
+            return ret;
+        }
+        private static JsonNode toEmptyJSON() {
+            ObjectNode ret = JsonNodeFactory.instance.objectNode();
+            ret.put("matched_text", "");
+            ret.put("concept_code", -1);
+            ret.put("matched_sentence", "");
+            ret.put("section_id", -10);
+            ret.put("nlp_run_dtm", sdf.get().format(new Date()));
+            ret.put("certainty", 0);
+            ret.put("experiencer", "");
+            ret.put("status", "");
+            ret.put("offset", -1);
+            ret.put("semgroups", "");
             return ret;
         }
     }
