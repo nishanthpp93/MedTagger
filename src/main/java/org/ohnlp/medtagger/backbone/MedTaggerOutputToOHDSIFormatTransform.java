@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.transforms.Reshuffle;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.Row;
 import org.joda.time.Instant;
@@ -37,7 +38,8 @@ public class MedTaggerOutputToOHDSIFormatTransform extends Transform {
 
     @Override
     public PCollection<Row> expand(PCollection<Row> input) {
-        return input.apply("MedTagger to OHDSI Transform", 
+        return input.apply("Reshuffle Records", Reshuffle.viaRandomKey())
+                .apply("MedTagger to OHDSI Transform",
             ParDo.of(new MedTaggerOHDSITransform(this.resources)));
     }
 

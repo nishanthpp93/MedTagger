@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.beam.sdk.schemas.Schema;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.transforms.Reshuffle;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.Row;
 import org.apache.uima.UIMAFramework;
@@ -70,7 +71,8 @@ public class MedTaggerBackboneTransform extends Transform {
 
     @Override
     public PCollection<Row> expand(PCollection<Row> input) {
-        return input.apply("MedTagger Concept Extraction",
+        return input.apply("Reshuffle Records", Reshuffle.viaRandomKey())
+                .apply("MedTagger Concept Extraction",
                 ParDo.of(new MedTaggerPipelineFunction(this.inputField, this.resources, this.mode, this.noteIdField)));
     }
 
