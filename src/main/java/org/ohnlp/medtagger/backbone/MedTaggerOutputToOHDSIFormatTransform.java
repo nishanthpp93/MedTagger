@@ -44,8 +44,6 @@ public class MedTaggerOutputToOHDSIFormatTransform extends Transform {
     private static Schema getNoteNLPSchema() {
         List<Schema.Field> fields = new LinkedList<>();
         fields.add(Schema.Field.of("note_id", Schema.FieldType.INT32));
-        fields.add(Schema.Field.of("note_text", Schema.FieldType.STRING));
-        fields.add(Schema.Field.of("nlp_output_json", Schema.FieldType.STRING));
         fields.add(Schema.Field.of("section_concept_id", Schema.FieldType.INT32));
         fields.add(Schema.Field.of("lexical_variant", Schema.FieldType.STRING));
         fields.add(Schema.Field.of("snippet", Schema.FieldType.STRING));
@@ -104,8 +102,6 @@ public class MedTaggerOutputToOHDSIFormatTransform extends Transform {
             // Now generate an output row
             Row.Builder rowBuild = Row.withSchema(schema)
                     .addValue(input.getValue("note_id"))
-                    .addValue(new String(""))
-                    .addValue(input.getValue("nlp_output_json"))
                     .addValue(rawValues.get("section_id").asInt())
                     .addValue(rawValues.get("matched_text").asText())
                     .addValue(rawValues.get("matched_sentence").asText());
